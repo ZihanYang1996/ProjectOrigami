@@ -53,12 +53,16 @@
 #if PLATFORM_IOS
     // ✅ iOS: Setup AVAudioSession (Not available on macOS)
     AVAudioSession *session = [AVAudioSession sharedInstance];
-    [session setCategory:AVAudioSessionCategoryRecord mode:AVAudioSessionModeDefault options:AVAudioSessionCategoryOptionDuckOthers error:&error];
+    [session setCategory:AVAudioSessionCategoryPlayAndRecord mode:AVAudioSessionModeVideoChat options:AVAudioSessionCategoryOptionAllowBluetooth | AVAudioSessionCategoryOptionDefaultToSpeaker error:&error];
     [session setActive:YES error:&error];
 
     if (error) {
-        NSLog(@"AppleAudioCaptureHelper: Failed to activate audio session: %@", error.localizedDescription);
-        return;
+        NSLog(@"AppleAudioCaptureHelper: Failed to set AVAudioSession category: %@", error.localizedDescription);
+    }
+
+    [session setActive:YES error:&error];
+    if (error) {
+        NSLog(@"AppleAudioCaptureHelper: Failed to activate AVAudioSession: %@", error.localizedDescription);
     }
 #endif
 
