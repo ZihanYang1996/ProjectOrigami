@@ -11,7 +11,26 @@ void AOrigamiPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Set the current controlled pawn to the player pawn
 	CurrentControlledPawn = GetPawn();
+
+	// Start the audio capture
+	StartAudioCapture();
+}
+
+AOrigamiPlayerController::AOrigamiPlayerController()
+{
+	// Enable Tick
+	PrimaryActorTick.bCanEverTick = true;
+}
+
+void AOrigamiPlayerController::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	// Get the voice input volume and blow wind in tick, will be replaced with a button press
+	BlowWind();
+
 }
 
 void AOrigamiPlayerController::SetupInputComponent()
@@ -50,8 +69,17 @@ void AOrigamiPlayerController::Look(const FInputActionValue& Value)
 	if (AOrigamiPlayerPawn* ControlledPawn = Cast<AOrigamiPlayerPawn>(CurrentControlledPawn))
 	{
 		// Look around
-		FVector2D LookInput{ Value.Get<FVector2D>() };
+		FVector2D LookInput{Value.Get<FVector2D>()};
 		AddYawInput(LookInput.X * LookSpeedX);
 		AddPitchInput(LookInput.Y * LookSpeedY);
+	}
+}
+
+void AOrigamiPlayerController::BlowWind()
+{
+	float Volume{GetMicVolume()};
+	if (AOrigamiPlayerPawn* ControlledPawn = Cast<AOrigamiPlayerPawn>(CurrentControlledPawn))
+	{
+		ControlledPawn->BlowWind(Volume);
 	}
 }

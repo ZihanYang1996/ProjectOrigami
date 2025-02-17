@@ -33,4 +33,6 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual void Move(const FInputActionValue& Value, float MovementSpeed);
+
+	void BlowWind(float Strength);
 };

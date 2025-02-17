@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "AppleAudioCaptureBridge.h"
 #include "OrigamiPlayerController.generated.h"
+
 
 struct FInputActionValue;
 class UInputAction;
@@ -35,6 +37,11 @@ class PROJECTORIGAMI_API AOrigamiPlayerController : public APlayerController
 	UPROPERTY(EditAnywhere, Category="Movement")
 	float LookSpeedY{25.0f};
 
+public:
+	AOrigamiPlayerController();
+
+	virtual void Tick(float DeltaSeconds) override;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -46,4 +53,9 @@ private:
 	void Look(const FInputActionValue& Value);
 
 	APawn* CurrentControlledPawn;
+
+public:
+	UFUNCTION()
+	void BlowWind();
+	
 };

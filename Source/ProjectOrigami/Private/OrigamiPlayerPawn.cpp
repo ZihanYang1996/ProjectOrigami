@@ -53,3 +53,11 @@ void AOrigamiPlayerPawn::Move(const FInputActionValue& Value, float MovementSpee
 	AddActorWorldOffset(DeltaLocation * MovementSpeed * DeltaTime, true);
 	
 }
+
+void AOrigamiPlayerPawn::BlowWind(float Strength)
+{
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Blowing Wind: ") + FString::SanitizeFloat(Strength));
+	}
+}
