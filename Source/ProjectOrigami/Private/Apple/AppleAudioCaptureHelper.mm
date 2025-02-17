@@ -72,6 +72,9 @@
         return;
     }
 
+    // ✅ Ensure tap is removed before adding a new one
+    [inputNode removeTapOnBus:0];
+
     AVAudioFormat *hardwareFormat = [inputNode inputFormatForBus:0];
 
     // ✅ Debug: Log the detected format
