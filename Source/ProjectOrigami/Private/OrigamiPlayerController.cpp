@@ -30,7 +30,6 @@ void AOrigamiPlayerController::Tick(float DeltaSeconds)
 
 	// Get the voice input volume and blow wind in tick, will be replaced with a button press
 	BlowWind();
-
 }
 
 void AOrigamiPlayerController::SetupInputComponent()
@@ -77,9 +76,17 @@ void AOrigamiPlayerController::Look(const FInputActionValue& Value)
 
 void AOrigamiPlayerController::BlowWind()
 {
+	// Get the volume from the microphone
 	float Volume{GetMicVolume()};
+
+	// Get the source location and direction of the wind (camera)
+	FVector CameraLocation;
+	FRotator CameraDirectionRotator;
+	GetPlayerViewPoint(CameraLocation, CameraDirectionRotator);
+	FVector CameraDirection{CameraDirectionRotator.Vector()};
+
 	if (AOrigamiPlayerPawn* ControlledPawn = Cast<AOrigamiPlayerPawn>(CurrentControlledPawn))
 	{
-		ControlledPawn->BlowWind(Volume);
+		ControlledPawn->BlowWind(Volume, CameraLocation, CameraDirection);
 	}
 }

@@ -6,6 +6,7 @@
 #include "GameFramework/Pawn.h"
 #include "OrigamiPlayerPawn.generated.h"
 
+class UBlowWindComponent;
 class UCameraComponent;
 struct FInputActionValue;
 
@@ -14,8 +15,11 @@ class PROJECTORIGAMI_API AOrigamiPlayerPawn : public APawn
 {
 	GENERATED_BODY()
 
-
+	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* Camera;
+
+	UPROPERTY(VisibleAnywhere)
+	UBlowWindComponent* BlowWindComponent;
 
 public:
 	// Sets default values for this pawn's properties
@@ -34,5 +38,5 @@ public:
 
 	virtual void Move(const FInputActionValue& Value, float MovementSpeed);
 
-	void BlowWind(float Strength);
+	void BlowWind(float WindStrength, FVector WindSourceLocation, FVector WindDirection);
 };

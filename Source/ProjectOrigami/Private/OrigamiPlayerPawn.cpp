@@ -3,6 +3,7 @@
 
 #include "OrigamiPlayerPawn.h"
 
+#include "BlowWindComponent.h"
 #include "InputActionValue.h"
 #include "Camera/CameraComponent.h"
 
@@ -19,7 +20,8 @@ AOrigamiPlayerPawn::AOrigamiPlayerPawn()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(RootComponent);
-	
+
+	BlowWindComponent = CreateDefaultSubobject<UBlowWindComponent>(TEXT("BlowWindComponent"));
 }
 
 // Called when the game starts or when spawned
@@ -44,20 +46,16 @@ void AOrigamiPlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 void AOrigamiPlayerPawn::Move(const FInputActionValue& Value, float MovementSpeed)
 {
 	// Get the movement vector from the input action value
-	FVector2D MovementVector{ Value.Get<FVector2D>() };
+	FVector2D MovementVector{Value.Get<FVector2D>()};
 	// Calculate the delta location
-	FVector DeltaLocation{ GetActorForwardVector() * MovementVector.Y + GetActorRightVector() * MovementVector.X };
+	FVector DeltaLocation{GetActorForwardVector() * MovementVector.Y + GetActorRightVector() * MovementVector.X};
 	// Get delta time to make the movement frame rate independent
-	float DeltaTime{ GetWorld()->GetDeltaSeconds() };
+	float DeltaTime{GetWorld()->GetDeltaSeconds()};
 	// Move the pawn
 	AddActorWorldOffset(DeltaLocation * MovementSpeed * DeltaTime, true);
-	
 }
 
-void AOrigamiPlayerPawn::BlowWind(float Strength)
+void AOrigamiPlayerPawn::BlowWind(float WindStrength, FVector WindSourceLocation, FVector WindDirection)
 {
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Blowing Wind: ") + FString::SanitizeFloat(Strength));
-	}
+	BlowWindComponent->ApplyWindForce(WindStrength, WindSourceLocation, WindDirection);
 }
