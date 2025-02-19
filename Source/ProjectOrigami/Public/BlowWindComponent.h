@@ -26,13 +26,21 @@ public:
 
 	void ApplyWindForce(float WindStrength, FVector WindSourceLocation, FVector WindDirection);
 
-	// Define how far the wind can reach
-	UPROPERTY(EditAnywhere)
+	// Define how far the wind can reach (To be tuned)
+	UPROPERTY(EditAnywhere, Category="Wind")
 	float WindDistance{1000.0f};
 
-	// Define the radius of the wind (the radius of the sphere used for the line trace)
-	UPROPERTY(EditAnywhere)
+	// Define the radius of the wind (the radius of the sphere used for the line trace) (To be tuned)
+	UPROPERTY(EditAnywhere, Category="Wind")
 	float WindRadius{300.0f};
+
+	// Define the wind strength multiplier (To be tuned)
+	UPROPERTY(EditAnywhere, Category="Wind")
+	float WindStrengthMultiplier{5000.0f};
+	
+	// Define the wind falloff intensity multiplier (To be tuned)
+	UPROPERTY(EditAnywhere, Category="Wind")
+	float WindFalloffIntensity{0.0001f};
 	
 private:
 	APlayerController* PlayerController;

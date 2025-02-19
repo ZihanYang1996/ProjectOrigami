@@ -20,12 +20,12 @@ void UBlowWindComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
-	
 }
 
 
 // Called every frame
-void UBlowWindComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UBlowWindComponent::TickComponent(float DeltaTime, ELevelTick TickType,
+                                       FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
@@ -38,9 +38,9 @@ void UBlowWindComponent::ApplyWindForce(float WindStrength, FVector WindSourceLo
 	{
 		// Print the wind strength and direction to the screen
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red,
-										 FString::Printf(
-											 TEXT("Wind Strength: %f; Wind Source Location: %s; Wind Direction %s"),
-											 WindStrength, *WindSourceLocation.ToString(), *WindDirection.ToString()));
+		                                 FString::Printf(
+			                                 TEXT("Wind Strength: %f; Wind Source Location: %s; Wind Direction %s"),
+			                                 WindStrength, *WindSourceLocation.ToString(), *WindDirection.ToString()));
 	}
 
 	// Prepare for the line trace
@@ -50,15 +50,40 @@ void UBlowWindComponent::ApplyWindForce(float WindStrength, FVector WindSourceLo
 	FCollisionShape CollisionShape{FCollisionShape::MakeSphere(WindRadius)};
 
 	// Perform the line trace, the ECC_GameTraceChannel1 is a custom trace channel: WindTrace
-	bool bHit{GetWorld()->SweepMultiByChannel(HitResults, WindSourceLocation, TraceEnd, FQuat::Identity,
-											   ECollisionChannel::ECC_GameTraceChannel1, CollisionShape)};
+	bool bHit{
+		// TODO: Maybe will change to sweep single
+		GetWorld()->SweepMultiByChannel(HitResults, WindSourceLocation, TraceEnd, FQuat::Identity,
+		                                ECollisionChannel::ECC_GameTraceChannel1, CollisionShape)
+	};
 
-	// Draw the debug sphere at the hit impact point
+	// Early return if no hit
+	if (!bHit)
+	{
+		return;
+	}
+
 	for (const FHitResult& Hit : HitResults)
 	{
+		// Draw the debug sphere at the hit impact point
 		DrawDebugSphere(GetWorld(), Hit.ImpactPoint, WindRadius, 12, FColor::Red, false, 5.f);
-	}
-	
-	
-}
 
+		UPrimitiveComponent* HitComponent{Hit.GetComponent()};
+		if (HitComponent && HitComponent->IsSimulatingPhysics())
+		{
+			// Calculate the distance from the wind source to the hit component
+			double Distance{FVector::Dist(WindSourceLocation, Hit.ImpactPoint)};
+			// Apply Inverse Square Falloff to the wind strength
+			double DistanceFactor{1.0f / (1.0f + Distance * Distance * WindFalloffIntensity)};
+			double FinalWindStrength{WindStrength * WindStrengthMultiplier * DistanceFactor};
+			// Apply the wind force to the hit component
+			HitComponent->AddForce(WindDirection * FinalWindStrength);
+			if (GEngine)
+			{
+				// Print "Pusing Object" to the screen
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red,
+				                                 FString::Printf(
+					                                 TEXT("Pushing Object with force: %f"), FinalWindStrength));
+			}
+		}
+	}
+}
