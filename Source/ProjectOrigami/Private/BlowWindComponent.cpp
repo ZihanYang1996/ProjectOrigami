@@ -41,6 +41,24 @@ void UBlowWindComponent::ApplyWindForce(float WindStrength, FVector WindSourceLo
 										 FString::Printf(
 											 TEXT("Wind Strength: %f; Wind Source Location: %s; Wind Direction %s"),
 											 WindStrength, *WindSourceLocation.ToString(), *WindDirection.ToString()));
-	}	
+	}
+
+	// Prepare for the line trace
+	FVector TraceEnd{WindSourceLocation + WindDirection * WindDistance};
+
+	TArray<FHitResult> HitResults;
+	FCollisionShape CollisionShape{FCollisionShape::MakeSphere(WindRadius)};
+
+	// Perform the line trace, the ECC_GameTraceChannel1 is a custom trace channel: WindTrace
+	bool bHit{GetWorld()->SweepMultiByChannel(HitResults, WindSourceLocation, TraceEnd, FQuat::Identity,
+											   ECollisionChannel::ECC_GameTraceChannel1, CollisionShape)};
+
+	// Draw the debug sphere at the hit impact point
+	for (const FHitResult& Hit : HitResults)
+	{
+		DrawDebugSphere(GetWorld(), Hit.ImpactPoint, WindRadius, 12, FColor::Red, false, 5.f);
+	}
+	
+	
 }
 

@@ -26,6 +26,14 @@ public:
 
 	void ApplyWindForce(float WindStrength, FVector WindSourceLocation, FVector WindDirection);
 
+	// Define how far the wind can reach
+	UPROPERTY(EditAnywhere)
+	float WindDistance{1000.0f};
+
+	// Define the radius of the wind (the radius of the sphere used for the line trace)
+	UPROPERTY(EditAnywhere)
+	float WindRadius{300.0f};
+	
 private:
 	APlayerController* PlayerController;
 };
