@@ -57,5 +57,8 @@ void AOrigamiPlayerPawn::Move(const FInputActionValue& Value, float MovementSpee
 
 void AOrigamiPlayerPawn::BlowWind(float WindStrength, FVector WindSourceLocation, FVector WindDirection)
 {
-	BlowWindComponent->ApplyWindForce(WindStrength, WindSourceLocation, WindDirection);
+	if (WindStrength > 0.0f)
+	{
+		BlowWindComponent->ApplyWindForce(WindStrength, WindSourceLocation, WindDirection);
+	}
 }
