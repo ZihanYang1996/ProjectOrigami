@@ -76,7 +76,9 @@ void UBlowWindComponent::ApplyWindForce(float WindStrength, FVector WindSourceLo
 			double DistanceFactor{1.0f / (1.0f + Distance * Distance * WindFalloffIntensity)};
 			double FinalWindStrength{WindStrength * WindStrengthMultiplier * DistanceFactor};
 			// Apply the wind force to the hit component
-			HitComponent->AddForce(WindDirection * FinalWindStrength);
+			// TODO: May combine both AddForce and AddForceAtLocation to get better results
+			// HitComponent->AddForce(WindDirection * FinalWindStrength);
+			HitComponent->AddForceAtLocation(WindDirection * FinalWindStrength, Hit.ImpactPoint);
 			if (GEngine)
 			{
 				// Print "Pusing Object" to the screen
