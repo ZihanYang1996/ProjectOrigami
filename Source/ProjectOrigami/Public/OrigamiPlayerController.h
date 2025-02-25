@@ -54,8 +54,13 @@ private:
 
 	APawn* CurrentControlledPawn;
 
+	bool bCanBlowWind{false};
+
 public:
 	UFUNCTION()
 	void BlowWind();
-	
+
+	void StartBlowingWind();
+
+	void StopBlowingWind();
 };

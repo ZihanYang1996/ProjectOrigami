@@ -29,7 +29,10 @@ void AOrigamiPlayerController::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	// Get the voice input volume and blow wind in tick, will be replaced with a button press
-	BlowWind();
+	if (bCanBlowWind)
+	{
+		BlowWind();
+	}
 }
 
 void AOrigamiPlayerController::SetupInputComponent()
@@ -89,4 +92,14 @@ void AOrigamiPlayerController::BlowWind()
 	{
 		ControlledPawn->BlowWind(Volume, CameraLocation, CameraDirection);
 	}
+}
+
+void AOrigamiPlayerController::StartBlowingWind()
+{
+	bCanBlowWind = true;
+}
+
+void AOrigamiPlayerController::StopBlowingWind()
+{
+	bCanBlowWind = false;
 }
