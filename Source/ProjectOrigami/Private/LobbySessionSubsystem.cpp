@@ -6,6 +6,7 @@
 #include "OnlineSessionSettings.h"
 #include "OnlineSubsystemUtils.h"
 #include "Interfaces/OnlineSessionInterface.h"
+#include "Online/OnlineSessionNames.h"
 
 void ULobbySessionSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -21,32 +22,18 @@ void ULobbySessionSubsystem::Deinitialize()
 	UE_LOG(LogTemp, Log, TEXT("Lobby Session Subsystem Deinitialized"));
 
 	// Optional: Clear any delegates if needed
-	IOnlineSubsystem* OnlineSubsystem{Online::GetSubsystem(GetWorld())};
-
-	if (OnlineSubsystem)
+	IOnlineSessionPtr SessionInterface{GetSessionInterfaceHelper(TEXT("Deinitialize"))};
+	if (SessionInterface.IsValid())
 	{
-		IOnlineSessionPtr SessionInterface{OnlineSubsystem->GetSessionInterface()};
-
-		if (SessionInterface.IsValid())
-		{
-			SessionInterface->ClearOnCreateSessionCompleteDelegate_Handle(OnCreateSessionCompleteDelegateHandle);
-		}
+		SessionInterface->ClearOnCreateSessionCompleteDelegate_Handle(OnCreateSessionCompleteDelegateHandle);
 	}
 }
 
 void ULobbySessionSubsystem::CreateSession(int32 NumPublicConnections)
 {
-	IOnlineSubsystem* OnlineSubsystem{Online::GetSubsystem(GetWorld())};
-	if (!OnlineSubsystem)
-	{
-		UE_LOG(LogTemp, Error, TEXT("CreateSession: Failed to get OnlineSubsystem!"));
-		return;
-	}
-
-	IOnlineSessionPtr SessionInterface{OnlineSubsystem->GetSessionInterface()};
+	IOnlineSessionPtr SessionInterface{GetSessionInterfaceHelper(TEXT("CreateSession"))};
 	if (!SessionInterface.IsValid())
 	{
-		UE_LOG(LogTemp, Error, TEXT("CreateSession: Failed to get SessionInterface!"));
 		return;
 	}
 
@@ -62,7 +49,7 @@ void ULobbySessionSubsystem::CreateSession(int32 NumPublicConnections)
 	SessionSettings.bIsLANMatch = true; // LAN mode enabled
 	SessionSettings.NumPublicConnections = NumPublicConnections; // Max players
 	SessionSettings.bShouldAdvertise = true; // Advertise the session
-	SessionSettings.bUsesPresence = false; // Not needed for LAN
+	SessionSettings.bUsesPresence = false; // Not needed for LAN, it's for "invites" or "friends only" stuff
 	SessionSettings.bAllowJoinInProgress = false; // Don't allow joining after the game has started
 
 	// Bind delegate for session creation complete
@@ -85,19 +72,10 @@ void ULobbySessionSubsystem::CreateSession(int32 NumPublicConnections)
 
 void ULobbySessionSubsystem::DestroySession()
 {
-	IOnlineSubsystem* Subsystem{Online::GetSubsystem(GetWorld())};
-
-	if (!Subsystem)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("DestroySession: OnlineSubsystem not found!"));
-		return;
-	}
-
-	IOnlineSessionPtr SessionInterface{Subsystem->GetSessionInterface()};
+	IOnlineSessionPtr SessionInterface{GetSessionInterfaceHelper(TEXT("DestroySession"))};
 
 	if (!SessionInterface.IsValid())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("DestroySession: SessionInterface is not valid!"));
 		return;
 	}
 
@@ -118,18 +96,9 @@ void ULobbySessionSubsystem::OnCreateSessionComplete(FName SessionName, bool bWa
 	UE_LOG(LogTemp, Log, TEXT("OnCreateSessionComplete: Session %s creation complete! Success: %s"),
 	       *SessionName.ToString(), bWasSuccessful ? TEXT("tre") : TEXT("false"));
 
-	IOnlineSubsystem* OnlineSubsystem{Online::GetSubsystem(GetWorld())};
-
-	if (!OnlineSubsystem)
-	{
-		UE_LOG(LogTemp, Error, TEXT("OnCreateSessionComplete: OnlineSubsystem not found!"));
-		return;
-	}
-
-	IOnlineSessionPtr SessionInterface{OnlineSubsystem->GetSessionInterface()};
+	IOnlineSessionPtr SessionInterface{GetSessionInterfaceHelper(TEXT("OnCreateSessionComplete"))};
 	if (!SessionInterface.IsValid())
 	{
-		UE_LOG(LogTemp, Error, TEXT("OnCreateSessionComplete: SessionInterface not valid!"));
 		return;
 	}
 
@@ -144,4 +113,137 @@ void ULobbySessionSubsystem::OnCreateSessionComplete(FName SessionName, bool bWa
 	{
 		UE_LOG(LogTemp, Error, TEXT("Failed to create session!"));
 	}
+}
+
+void ULobbySessionSubsystem::FindSessions(int32 MaxSearchResults)
+{
+	IOnlineSessionPtr SessionInterface{GetSessionInterfaceHelper(TEXT("FindSessions"))};
+	if (!SessionInterface.IsValid())
+	{
+		return;
+	}
+
+	// Define session search settings (LAN search only)
+	OnlineSessionSearch = MakeShareable(new FOnlineSessionSearch());
+	OnlineSessionSearch->MaxSearchResults = MaxSearchResults;
+	OnlineSessionSearch->bIsLanQuery = true; // LAN search
+
+	UE_LOG(LogTemp, Log, TEXT("FindSessions: Starting session search..."));
+
+	// Bind delegate for session search complete
+	OnFindSessionsCompleteDelegate = FOnFindSessionsCompleteDelegate::CreateUObject(
+		this, &ULobbySessionSubsystem::OnFindSessionsComplete);
+	OnFindSessionsCompleteDelegateHandle = SessionInterface->AddOnFindSessionsCompleteDelegate_Handle(
+		OnFindSessionsCompleteDelegate);
+
+	// Search for sessions
+	// Use 0 for LAN, need to use *LocalPlayer->GetPreferredUniqueNetId().GetUniqueNetId() for online
+	bool bSuccess{SessionInterface->FindSessions(0, OnlineSessionSearch.ToSharedRef())};
+
+	if (!bSuccess)
+	{
+		UE_LOG(LogTemp, Error, TEXT("FindSessions: Failed to start session search!"));
+	}
+}
+
+void ULobbySessionSubsystem::OnFindSessionsComplete(bool bWasSuccessful)
+{
+	IOnlineSessionPtr SessionInterface{GetSessionInterfaceHelper(TEXT("OnFindSessionsComplete"))};
+	if (!SessionInterface.IsValid())
+	{
+		return;
+	}
+
+	// Clear the delegate
+	SessionInterface->ClearOnFindSessionsCompleteDelegate_Handle(OnFindSessionsCompleteDelegateHandle);
+
+	if (bWasSuccessful)
+	{
+		UE_LOG(LogTemp, Log, TEXT("OnFindSessionsComplete: Found %d sessions!"),
+		       OnlineSessionSearch->SearchResults.Num());
+		OnSessionFound.Broadcast(OnlineSessionSearch->SearchResults);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("OnFindSessionsComplete: Session search failed or returned no results."));
+		OnSessionFound.Broadcast(TArray<FOnlineSessionSearchResult>());
+	}
+}
+
+void ULobbySessionSubsystem::JoinSession(const FOnlineSessionSearchResult& SessionToJoin)
+{
+	IOnlineSessionPtr SessionInterface{GetSessionInterfaceHelper(TEXT("JoinSession"))};
+	if (!SessionInterface.IsValid())
+	{
+		return;
+	}
+
+	// Bind delegate for session join complete
+	OnJoinSessionCompleteDelegate = FOnJoinSessionCompleteDelegate::CreateUObject(
+		this, &ULobbySessionSubsystem::OnJoinSessionComplete);
+	OnJoinSessionCompleteDelegateHandle = SessionInterface->AddOnJoinSessionCompleteDelegate_Handle(
+		OnJoinSessionCompleteDelegate);
+
+	// Join the session
+	// Use 0 for LAN, need to use *LocalPlayer->GetPreferredUniqueNetId().GetUniqueNetId() for online
+	bool bSuccess{SessionInterface->JoinSession(0, NAME_GameSession, SessionToJoin)};
+
+	if (!bSuccess)
+	{
+		UE_LOG(LogTemp, Error, TEXT("JoinSession: Failed to join session!"));
+	}
+}
+
+
+void ULobbySessionSubsystem::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result)
+{
+	IOnlineSessionPtr SessionInterface{GetSessionInterfaceHelper(TEXT("OnJoinSessionComplete"))};
+	if (!SessionInterface.IsValid())
+	{
+		return;
+	}
+
+	// Clear the delegate
+	SessionInterface->ClearOnJoinSessionCompleteDelegate_Handle(OnJoinSessionCompleteDelegateHandle);
+
+	FString ConnectInfo;
+	if (SessionInterface->GetResolvedConnectString(NAME_GameSession, ConnectInfo))
+	{
+		UE_LOG(LogTemp, Log, TEXT("OnJoinSessionComplete: Connecting to %s"), *ConnectInfo);
+		
+		// Travel to the host level/map
+		APlayerController* PlayerController{GetWorld()->GetFirstPlayerController()};
+		if (PlayerController)
+		{
+			PlayerController->ClientTravel(ConnectInfo, ETravelType::TRAVEL_Absolute);
+		}
+		// Broadcast event
+		OnSessionJoined.Broadcast();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("OnJoinSessionComplete: Failed to join session %s!"), *SessionName.ToString());
+	}
+}
+
+
+
+IOnlineSessionPtr ULobbySessionSubsystem::GetSessionInterfaceHelper(const FString& Context) const
+{
+	IOnlineSubsystem* OnlineSubsystem{Online::GetSubsystem(GetWorld())};
+
+	if (!OnlineSubsystem)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s: OnlineSubsystem not found!"), *Context);
+		return nullptr;
+	}
+
+	IOnlineSessionPtr SessionInterface{OnlineSubsystem->GetSessionInterface()};
+	if (!SessionInterface.IsValid())
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s: SessionInterface not valid!"), *Context);
+		return nullptr;
+	}
+
+	return SessionInterface;
 }
