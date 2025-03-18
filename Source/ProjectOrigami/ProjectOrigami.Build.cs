@@ -8,16 +8,21 @@ public class ProjectOrigami : ModuleRules
 	public ProjectOrigami(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "AudioCapture", "UMG", "AudioMixer", "ApplicationCore" });
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
-		
-		PrivateIncludePaths.AddRange(new string[] {Path.Combine(ModuleDirectory, "Private"), Path.Combine(ModuleDirectory, "Private/Apple")});
+		PublicDependencyModuleNames.AddRange(new string[]
+		{
+			"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "AudioCapture", "UMG", "AudioMixer",
+			"ApplicationCore", "OnlineSubsystem", "OnlineSubsystemUtils"
+		});
+
+		PrivateDependencyModuleNames.AddRange(new string[] { });
+
+		PrivateIncludePaths.AddRange(new string[]
+			{ Path.Combine(ModuleDirectory, "Private"), Path.Combine(ModuleDirectory, "Private/Apple") });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
-		
+
 		// Uncomment if you are using online features
 		// PrivateDependencyModuleNames.Add("OnlineSubsystem");
 
