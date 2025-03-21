@@ -161,12 +161,18 @@ void ULobbySessionSubsystem::OnFindSessionsComplete(bool bWasSuccessful)
 	{
 		UE_LOG(LogTemp, Log, TEXT("OnFindSessionsComplete: Found %d sessions!"),
 		       OnlineSessionSearch->SearchResults.Num());
-		OnSessionFound.Broadcast(OnlineSessionSearch->SearchResults);
+		TArray<FOnlineSessionSearchResultWrapper> SearchResults;
+		for (const FOnlineSessionSearchResult& Result : OnlineSessionSearch->SearchResults)
+		{
+			FOnlineSessionSearchResultWrapper Wrapper{Result};
+			SearchResults.Add(Wrapper);	
+		}
+		OnSessionFound.Broadcast(SearchResults);
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("OnFindSessionsComplete: Session search failed or returned no results."));
-		OnSessionFound.Broadcast(TArray<FOnlineSessionSearchResult>());
+		OnSessionFound.Broadcast(TArray<FOnlineSessionSearchResultWrapper>());
 	}
 }
 

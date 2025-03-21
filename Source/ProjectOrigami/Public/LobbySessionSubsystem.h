@@ -6,12 +6,32 @@
 #include "OnlineSubsystem.h"
 #include "Interfaces/OnlineSessionDelegates.h"
 #include "Interfaces/OnlineSessionInterface.h"
+#include "OnlineSessionSettings.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "LobbySessionSubsystem.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSessionCreatedSignature);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSessionFoundSignature, const TArray<FOnlineSessionSearchResult>&, SessionResults);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSessionJoinedSignature);
+
+USTRUCT(BlueprintType)
+struct FOnlineSessionSearchResultWrapper
+{
+	GENERATED_BODY()
+
+	FOnlineSessionSearchResult SearchResult;
+
+	FOnlineSessionSearchResultWrapper() = default;
+
+	FOnlineSessionSearchResultWrapper(const FOnlineSessionSearchResult& InSearchResult)
+		: SearchResult(InSearchResult)
+	{
+	}
+};
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSessionFoundSignature, const TArray<FOnlineSessionSearchResultWrapper>&,
+                                            SessionResults);
+
 
 UCLASS()
 class PROJECTORIGAMI_API ULobbySessionSubsystem : public UGameInstanceSubsystem
