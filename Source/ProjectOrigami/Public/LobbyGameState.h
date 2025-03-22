@@ -18,4 +18,7 @@ public:
 	// The PlayerArray is an array of all PlayerStates, auyomatically maintained on both server and clients
 	UFUNCTION(BlueprintCallable)
 	const TArray<APlayerState*>& GetPlayers() const { return PlayerArray; }
+
+	// Call this whenever a player's ready status changes
+	void CheckAllPlayersReady();
 };
