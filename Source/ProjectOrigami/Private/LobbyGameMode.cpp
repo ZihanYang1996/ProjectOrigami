@@ -19,7 +19,11 @@ void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 	int32 NumPlayers{GameState->PlayerArray.Num()};
 	UE_LOG(LogTemp, Log, TEXT("Player Joined! Current Players: %d"), NumPlayers);
 
-	// Notify lobby UI, update player list, etc.
+	// Broadcast the player list changed event
+	if (ALobbyGameState* GS{GetGameState<ALobbyGameState>()})
+	{
+		GS->OnPlayerListChanged();
+	}
 }
 
 void ALobbyGameMode::Logout(AController* Exiting)
@@ -28,7 +32,12 @@ void ALobbyGameMode::Logout(AController* Exiting)
 
 	int32 NumPlayers{GameState->PlayerArray.Num()};
 	UE_LOG(LogTemp, Log, TEXT("Player Left! Current Players: %d"), NumPlayers);
-	// Notify lobby UI, update player list, etc.
+
+	// Broadcast the player list changed event
+	if (ALobbyGameState* GS{GetGameState<ALobbyGameState>()})
+	{
+		GS->OnPlayerListChanged();
+	}
 }
 
 void ALobbyGameMode::StartGame()
