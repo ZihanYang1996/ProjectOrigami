@@ -6,9 +6,9 @@
 #include "GameFramework/GameStateBase.h"
 #include "LobbyGameState.generated.h"
 
-/**
- * 
- */
+// Declare a delegate the player list changes
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerListChangedSignature);
+
 UCLASS()
 class PROJECTORIGAMI_API ALobbyGameState : public AGameStateBase
 {
@@ -16,9 +16,14 @@ class PROJECTORIGAMI_API ALobbyGameState : public AGameStateBase
 
 public:
 	// The PlayerArray is an array of all PlayerStates, auyomatically maintained on both server and clients
-	UFUNCTION(BlueprintCallable)
-	const TArray<APlayerState*>& GetPlayers() const { return PlayerArray; }
+	const TArray<TObjectPtr<APlayerState>>& GetPlayers() const { return PlayerArray; }
 
 	// Call this whenever a player's ready status changes
 	void CheckAllPlayersReady();
+
+	UFUNCTION()
+	void OnPlayerListChanged();
+
+	UPROPERTY(BlueprintAssignable)
+	FOnPlayerListChangedSignature OnPlayerListChangedDelegate;
 };

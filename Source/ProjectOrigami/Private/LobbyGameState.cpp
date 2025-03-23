@@ -6,6 +6,13 @@
 #include "LobbyGameMode.h"
 #include "LobbyPlayerState.h"
 
+void ALobbyGameState::OnPlayerListChanged()
+{
+	UE_LOG(LogTemp, Log, TEXT("LobbyGameState: Player list changed! Current players: %d"), PlayerArray.Num());
+	OnPlayerListChangedDelegate.Broadcast();
+}
+
+
 void ALobbyGameState::CheckAllPlayersReady()
 {
 	if (!HasAuthority())
