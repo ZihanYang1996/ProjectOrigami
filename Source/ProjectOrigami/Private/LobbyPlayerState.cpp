@@ -3,6 +3,7 @@
 
 #include "LobbyPlayerState.h"
 
+#include "LobbyGameState.h"
 #include "Net/UnrealNetwork.h"
 
 void ALobbyPlayerState::SetReadyState(bool bNewIsReady)
@@ -11,6 +12,12 @@ void ALobbyPlayerState::SetReadyState(bool bNewIsReady)
 	{
 		bIsReady = bNewIsReady;
 		OnRep_bIsReady(); // RepNotify function needs to be called manually on the server
+		
+		if (ALobbyGameState* GS{GetWorld()->GetGameState<ALobbyGameState>()})
+		{
+			GS->OnPlayerListChanged();  // Broadcast the player list changed event (for UI)
+			GS->CheckAllPlayersReady();  // Check if all players are ready
+		}
 	}
 }
 
