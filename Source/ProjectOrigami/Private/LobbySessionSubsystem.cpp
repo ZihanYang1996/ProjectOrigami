@@ -3,6 +3,7 @@
 
 #include "LobbySessionSubsystem.h"
 
+#include "OnlineSessionSearchResultWrapper.h"
 #include "OnlineSessionSettings.h"
 #include "OnlineSubsystemUtils.h"
 #include "Interfaces/OnlineSessionInterface.h"
@@ -161,10 +162,11 @@ void ULobbySessionSubsystem::OnFindSessionsComplete(bool bWasSuccessful)
 	{
 		UE_LOG(LogTemp, Log, TEXT("OnFindSessionsComplete: Found %d sessions!"),
 		       OnlineSessionSearch->SearchResults.Num());
-		TArray<FOnlineSessionSearchResultWrapper> SearchResults;
+		TArray<UOnlineSessionSearchResultWrapper*> SearchResults;
 		for (const FOnlineSessionSearchResult& Result : OnlineSessionSearch->SearchResults)
 		{
-			FOnlineSessionSearchResultWrapper Wrapper{Result};
+			UOnlineSessionSearchResultWrapper* Wrapper{NewObject<UOnlineSessionSearchResultWrapper>(this)};
+			Wrapper->SearchResult = Result;
 			SearchResults.Add(Wrapper);	
 		}
 		OnSessionFound.Broadcast(SearchResults);
@@ -172,7 +174,7 @@ void ULobbySessionSubsystem::OnFindSessionsComplete(bool bWasSuccessful)
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("OnFindSessionsComplete: Session search failed or returned no results."));
-		OnSessionFound.Broadcast(TArray<FOnlineSessionSearchResultWrapper>());
+		OnSessionFound.Broadcast(TArray<UOnlineSessionSearchResultWrapper*>());
 	}
 }
 

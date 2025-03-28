@@ -14,22 +14,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSessionCreatedSignature);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSessionJoinedSignature);
 
-USTRUCT(BlueprintType)
-struct FOnlineSessionSearchResultWrapper
-{
-	GENERATED_BODY()
-
-	FOnlineSessionSearchResult SearchResult;
-
-	FOnlineSessionSearchResultWrapper() = default;
-
-	FOnlineSessionSearchResultWrapper(const FOnlineSessionSearchResult& InSearchResult)
-		: SearchResult(InSearchResult)
-	{
-	}
-};
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSessionFoundSignature, const TArray<FOnlineSessionSearchResultWrapper>&,
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSessionFoundSignature, const TArray<UOnlineSessionSearchResultWrapper*>&,
                                             SessionResults);
 
 
