@@ -12,7 +12,7 @@ public class ProjectOrigami : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[]
 		{
 			"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "AudioCapture", "UMG", "AudioMixer",
-			"ApplicationCore", "OnlineSubsystem", "OnlineSubsystemUtils"
+			"ApplicationCore", "Sockets", "Networking", "OnlineSubsystemUtils"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });

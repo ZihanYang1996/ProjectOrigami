@@ -21,11 +21,18 @@ void ALobbyPlayerState::SetReadyState(bool bNewIsReady)
 	}
 }
 
-void ALobbyPlayerState::ServerSetReadyState_Implementation(bool bNewIsReady)
+void ALobbyPlayerState::ServerToggleReady_Implementation()
 {
-	SetReadyState(bNewIsReady);
+	SetReadyState(!bIsReady);
 }
 
+void ALobbyPlayerState::SetPlayerName(const FString& NewName)
+{
+	if (HasAuthority())
+	{
+		PlayerName = NewName;
+	}
+}
 
 void ALobbyPlayerState::OnRep_bIsReady()
 {
