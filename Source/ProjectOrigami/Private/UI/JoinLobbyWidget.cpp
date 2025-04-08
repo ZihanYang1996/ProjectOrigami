@@ -29,7 +29,6 @@ void UJoinLobbyWidget::JoinLobby()
 {
 	if (ULANLobbySubsystem* Subsystem{GetGameInstance()->GetSubsystem<ULANLobbySubsystem>()})
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Join Lobby clicked in JoinLobbyWidget!"));
 		Subsystem->JoinLobby(CachedServerIP);
 	}
 }

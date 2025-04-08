@@ -18,11 +18,8 @@ void ULANLobbySubsystem::HostLobby()
 
 		// ServerTravel to the lobby map
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Hosting LAN Lobby!"));
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Lobby Name: ") + GetLocalIPAddress());
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Lobby Name: ") + LobbyName);
 		World->ServerTravel(LobbyMapName + TravelOption);
-
-		// Below is the code for testing purposes
-		// World->ServerTravel("/Game/Maps/LobbyMenu?listen");
 	}
 }
 
@@ -33,14 +30,9 @@ void ULANLobbySubsystem::JoinLobby(const FString& IPAddress, const FString& Port
 	{
 		FString FullAddress{IPAddress + ":" + Port};
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Joining LAN Lobby!"));
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("IP Address: ") + IPAddress);
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Port: ") + Port);
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Full Address: ") + FullAddress);
 
 		PlayerController->ClientTravel(FullAddress, ETravelType::TRAVEL_Absolute);
-
-		// Below is the code for testing purposes
-		// PlayerController->ClientTravel("192.168.2.65:7777", ETravelType::TRAVEL_Absolute);
 	}
 }
 

@@ -16,11 +16,10 @@ void ALobbyGameState::SetLobbyName(const FString& InLobbyName)
 {
 	if (HasAuthority())
 	{
-		// Print the lobby name to the screen for debugging purposes
-		
 		LobbyName = InLobbyName;
-		
-		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Server: Setting lobby name to local IP address to ") + LobbyName);
+
+		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red,
+		                                 TEXT("Server: Setting lobby name to local IP address to ") + LobbyName);
 		OnRep_LobbyName(); // Call the replication function manually, since we're on the server
 	}
 }
@@ -32,9 +31,12 @@ FString ALobbyGameState::GetLobbyName() const
 
 void ALobbyGameState::OnRep_LobbyName()
 {
-	// Can update the lobby UI here if needed in the future
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Lobby name replicated: ") + LobbyName);
-	UE_LOG(LogTemp, Log, TEXT("Lobby name replicated: %s"), *LobbyName);
+	if (!HasAuthority())
+	{
+		// Print the lobby name on the client for debugging purposes
+		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Client: Lobby name replicated: ") + LobbyName);
+	}
+	// Update the UI or perform any other actions needed when the lobby name changes
 	OnLobbyNameChangedDelegate.Broadcast();
 }
 
