@@ -15,21 +15,18 @@ class PROJECTORIGAMI_API ULANLobbySubsystem : public UGameInstanceSubsystem
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(BlueprintReadOnly)
-	FString LobbyName;  // For now we use the IP on the server as the lobby name
-
-	UPROPERTY(EditAnywhere)
 	FString LobbyMapName{TEXT("/Game/Maps/LobbyMenu")};
 
-	UPROPERTY(EditAnywhere)
 	FString TravelOption{TEXT("?listen")};
 
 	UPROPERTY(BlueprintReadOnly)
 	FString LocalPlayerName;
-	
+
 	UFUNCTION(BlueprintCallable)
 	void HostLobby();
 
+	// Default the port to 7777, since Unreal Engine uses this port by default
+	// If you want to host lobby on a different port, you can set it in the DefaultEngine.ini
 	UFUNCTION(BlueprintCallable)
 	void JoinLobby(const FString& IPAddress, const FString& Port = TEXT("7777"));
 
@@ -41,8 +38,12 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void ServerApplyPlayerName();
-	
+
+	UFUNCTION(BlueprintCallable)
+	FString GetLobbyName() const { return LobbyName; }
 
 private:
 	FString GetLocalIPAddress() const;
+
+	FString LobbyName; // For now we use the IP on the server as the lobby name
 };

@@ -7,7 +7,11 @@
 #include "LobbyGameState.generated.h"
 
 // Declare a delegate the player list changes
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerListChangedSignature);
+// DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerListChangedSignature);
+
+// Declare a delegate for when the lobby name changes
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLobbyNameChangedSignature);
+
 
 UCLASS()
 class PROJECTORIGAMI_API ALobbyGameState : public AGameStateBase
@@ -15,15 +19,32 @@ class PROJECTORIGAMI_API ALobbyGameState : public AGameStateBase
 	GENERATED_BODY()
 
 public:
-	// The PlayerArray is an array of all PlayerStates, auyomatically maintained on both server and clients
-	const TArray<TObjectPtr<APlayerState>>& GetPlayers() const { return PlayerArray; }
+	ALobbyGameState();
 
-	// Call this whenever a player's ready status changes
-	void CheckAllPlayersReady();
+	UPROPERTY(ReplicatedUsing=OnRep_LobbyName, BlueprintReadOnly)
+	FString LobbyName;
 
+	void SetLobbyName(const FString& InLobbyName);
+
+	FString GetLobbyName() const;
+
+	FOnLobbyNameChangedSignature OnLobbyNameChangedDelegate;
+	
+	// // The PlayerArray is an array of all PlayerStates, auyomatically maintained on both server and clients
+	// const TArray<TObjectPtr<APlayerState>>& GetPlayers() const { return PlayerArray; }
+	//
+	// // Call this whenever a player's ready status changes
+	// void CheckAllPlayersReady();
+	//
+	// UFUNCTION()
+	// void OnPlayerListChanged();
+	//
+	// UPROPERTY(BlueprintAssignable)
+	// FOnPlayerListChangedSignature OnPlayerListChangedDelegate;
+
+protected:
 	UFUNCTION()
-	void OnPlayerListChanged();
+	void OnRep_LobbyName();
 
-	UPROPERTY(BlueprintAssignable)
-	FOnPlayerListChangedSignature OnPlayerListChangedDelegate;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };

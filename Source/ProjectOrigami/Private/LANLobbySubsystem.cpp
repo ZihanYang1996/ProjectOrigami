@@ -13,14 +13,16 @@ void ULANLobbySubsystem::HostLobby()
 	UWorld* World{GetWorld()};
 	if (World)
 	{
-		// Get the local IP address and set it as the lobby name
+		// Get the local IP address and set it as the lobby name on this subsystem so it's persistent
 		LobbyName = GetLocalIPAddress();
-		
+
 		// ServerTravel to the lobby map
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Hosting LAN Lobby!"));
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Lobby Name: ") + LobbyName);
-		// World->ServerTravel(LobbyMapName + TravelOption);
-		World->ServerTravel("/Game/Maps/LobbyMenu?listen");
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Lobby Name: ") + GetLocalIPAddress());
+		World->ServerTravel(LobbyMapName + TravelOption);
+
+		// Below is the code for testing purposes
+		// World->ServerTravel("/Game/Maps/LobbyMenu?listen");
 	}
 }
 
@@ -30,27 +32,30 @@ void ULANLobbySubsystem::JoinLobby(const FString& IPAddress, const FString& Port
 	if (PlayerController)
 	{
 		FString FullAddress{IPAddress + ":" + Port};
-		// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Joining LAN Lobby!"));
-		// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("IP Address: ") + IPAddress);
-		// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Port: ") + Port);
-		// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Full Address: ") + FullAddress);
-		
-		// PlayerController->ClientTravel(FullAddress, ETravelType::TRAVEL_Absolute);
-		PlayerController->ClientTravel("192.168.2.62", ETravelType::TRAVEL_Absolute);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Joining LAN Lobby!"));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("IP Address: ") + IPAddress);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Port: ") + Port);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Full Address: ") + FullAddress);
+
+		PlayerController->ClientTravel(FullAddress, ETravelType::TRAVEL_Absolute);
+
+		// Below is the code for testing purposes
+		// PlayerController->ClientTravel("192.168.2.65:7777", ETravelType::TRAVEL_Absolute);
 	}
 }
 
 FString ULANLobbySubsystem::GetLocalIPAddress() const
 {
+	// Get the local IP address
 	bool bCanBindAll{false};
 	TSharedRef<FInternetAddr> Addr{
 		ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->GetLocalHostAddr(*GLog, bCanBindAll)
 	};
+
 	if (Addr->IsValid())
 	{
-		Addr->SetPort(7777); // Set a default port for the lobby
-		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, TEXT("Local IP Address: ") + Addr->ToString(true));
-		return Addr->ToString(true);
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, TEXT("Local IP Address: ") + Addr->ToString(false));
+		return Addr->ToString(false);
 	}
 	return FString(TEXT("Unknown"));
 }
