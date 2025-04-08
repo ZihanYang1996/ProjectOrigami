@@ -46,8 +46,16 @@ FString ULANLobbySubsystem::GetLocalIPAddress() const
 
 	if (Addr->IsValid())
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, TEXT("Local IP Address: ") + Addr->ToString(false));
-		return Addr->ToString(false);
+		FString FullIPAddress{Addr->ToString(false)};
+
+		// Remove the IPv6 prefix if it exists (on iOS for example)
+		if (FullIPAddress.StartsWith("::ffff:"))
+		{
+			FullIPAddress = FullIPAddress.RightChop(7);
+		}
+		
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, TEXT("Local IP Address: ") + FullIPAddress);
+		return FullIPAddress;
 	}
 	return FString(TEXT("Unknown"));
 }
