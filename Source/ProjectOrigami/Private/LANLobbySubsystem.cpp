@@ -62,7 +62,17 @@ FString ULANLobbySubsystem::GetLocalIPAddress() const
 
 void ULANLobbySubsystem::SetLocalPlayerName(const FString& Name)
 {
-	LocalPlayerName = Name;
+	// Use the IP as the default player name if no name is provided
+	if (Name.IsEmpty())
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("No player name provided, using IP."));
+		LocalPlayerName = FString::Printf(TEXT("Player_%s"), *GetLocalIPAddress());
+	}
+	else
+	{
+		LocalPlayerName = Name;
+	}
+	
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Local Player Name set to: ") + LocalPlayerName);
 }
 
