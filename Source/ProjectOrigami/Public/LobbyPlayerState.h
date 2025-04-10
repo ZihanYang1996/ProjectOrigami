@@ -16,23 +16,29 @@ public:
 	// Ready state that gets replicated to all clients
 	// UPROPERTY(ReplicatedUsing=OnRep_bIsReady)
 	// bool bIsReady{false};
-	//
-	// UPROPERTY(Replicated)
-	// FString PlayerName;
-	//
-	// // Clinent calls this function to request the server to set the ready state
-	// // Marked reliable to ensure the server gets the message
+	
+	UPROPERTY(Replicated)
+	FString PlayerName;
+	
+	// Clinent calls this function to request the server to set the ready state
+	// Marked reliable to ensure the server gets the message
 	// UFUNCTION(Server, Reliable)
 	// void ServerToggleReady();
-	//
-	// virtual void SetPlayerName(const FString& NewName) override;
+	
+	virtual void SetPlayerName(const FString& NewName) override;
+
+	UFUNCTION(Server, Reliable)
+	void ServerSetPlayerName(const FString& NewName);
+
 
 protected:
+	virtual void BeginPlay() override;
+	
 	// UFUNCTION()
 	// void OnRep_bIsReady();
-	//
-	// // Server-side function to set the ready state
+	
+	// Server-side function to set the ready state
 	// void SetReadyState(bool bNewIsReady);
-	//
-	// virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+	
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 };
