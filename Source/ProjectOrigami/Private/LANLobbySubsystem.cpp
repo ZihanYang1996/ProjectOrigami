@@ -80,16 +80,3 @@ FString ULANLobbySubsystem::GetLocalPlayerName() const
 {
 	return LocalPlayerName;
 }
-
-void ULANLobbySubsystem::ServerApplyPlayerName_Implementation()
-{
-	APlayerController* PlayerController{UGameplayStatics::GetPlayerController(GetWorld(), 0)};
-	if (PlayerController)
-	{
-		ALobbyPlayerState* PlayerState{PlayerController->GetPlayerState<ALobbyPlayerState>()};
-		if (PlayerState)
-		{
-			PlayerState->SetPlayerName(LocalPlayerName);
-		}
-	}
-}

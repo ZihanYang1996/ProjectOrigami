@@ -36,9 +36,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FString GetLocalPlayerName() const;
 
-	UFUNCTION(Server, Reliable)
-	void ServerApplyPlayerName();
-
 	UFUNCTION(BlueprintCallable)
 	FString GetLobbyName() const { return LobbyName; }
 
