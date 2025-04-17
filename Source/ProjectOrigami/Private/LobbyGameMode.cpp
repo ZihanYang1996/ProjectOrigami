@@ -33,6 +33,13 @@ void ALobbyGameMode::StartGame()
 	if (HasAuthority())
 	{
 		UE_LOG(LogTemp, Log, TEXT("Starting game..."));
+		// Get the game state and set the lobby name to "Starting game..."
+		if (ALobbyGameState* GameState{GetGameState<ALobbyGameState>()})
+		{
+			GameState->SetLobbyName(TEXT("Starting game..."));
+		}
+		
+		// Start the game by server traveling to the game map
 		GetWorld()->ServerTravel(GameMapName + TravelOption);
 	}
 }
