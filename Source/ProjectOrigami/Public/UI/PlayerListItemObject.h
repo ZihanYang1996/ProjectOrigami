@@ -16,5 +16,14 @@ class PROJECTORIGAMI_API UPlayerListItemObject : public UObject
 
 public:
 	UPROPERTY(BlueprintReadOnly)
-	APlayerState* PlayerState;
+	FString PlayerName;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsReady;
+
+	void Init(const FString& InName, bool bInIsReady)
+	{
+		PlayerName = InName;
+		bIsReady = bInIsReady;
+	}
 };

@@ -13,32 +13,38 @@ class PROJECTORIGAMI_API ALobbyPlayerState : public APlayerState
 	GENERATED_BODY()
 
 public:
-	// Ready state that gets replicated to all clients
-	// UPROPERTY(ReplicatedUsing=OnRep_bIsReady)
-	// bool bIsReady{false};
+
+	bool GetReadyState() const { return bIsReady; }
+	FString GetCustomPlayerName() const { return CustomPlayerName; }
 	
-	UPROPERTY(Replicated)
-	FString PlayerName;
-	
+	void SetCustomePlayerName(const FString& NewName);
+
+	void ToggleReady();
+
+	// Client calls this function to set the player name
+	// Marked reliable to ensure the server gets the message
+	UFUNCTION(Server, Reliable)
+	void ServerSetCustomePlayerName(const FString& NewName);
+
 	// Clinent calls this function to request the server to set the ready state
 	// Marked reliable to ensure the server gets the message
-	// UFUNCTION(Server, Reliable)
-	// void ServerToggleReady();
-	
-	virtual void SetPlayerName(const FString& NewName) override;
-
 	UFUNCTION(Server, Reliable)
-	void ServerSetPlayerName(const FString& NewName);
-
+	void ServerToggleReady();
 
 protected:
 	virtual void BeginPlay() override;
+
+	UPROPERTY(ReplicatedUsing=OnRep_bIsReady)
+	bool bIsReady{false};
 	
-	// UFUNCTION()
-	// void OnRep_bIsReady();
+	UPROPERTY(ReplicatedUsing=OnRep_CustomPlayerName)
+	FString CustomPlayerName;
 	
-	// Server-side function to set the ready state
-	// void SetReadyState(bool bNewIsReady);
+	UFUNCTION()
+	void OnRep_CustomPlayerName();
+	
+	UFUNCTION()
+	void OnRep_bIsReady();
 	
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 };

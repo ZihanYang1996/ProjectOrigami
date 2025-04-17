@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "LobbyUIWidget.generated.h"
 
+class UButton;
 class UTextBlock;
 class UListView;
 /**
@@ -31,12 +32,18 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	UListView* ListView_PlayerList;
 
+	UPROPERTY(meta=(BindWidget))
+	UButton* Button_Ready;
+
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UUserWidget> PlayerEntryClass;
 
 	UFUNCTION()
 	void OnLobbyNameChanged();
-public:
-	// void OnPlayerListChanged();
-	// void RefreshPlayerList();
+
+	UFUNCTION()
+	void OnPlayerListChanged();
+
+	UFUNCTION()
+	void OnReadyClicked();
 };
