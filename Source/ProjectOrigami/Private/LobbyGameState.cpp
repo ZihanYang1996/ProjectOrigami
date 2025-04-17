@@ -51,37 +51,42 @@ void ALobbyGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 void ALobbyGameState::OnPlayerListChanged()
 {
 	UE_LOG(LogTemp, Log, TEXT("LobbyGameState: Player list changed! Current players: %d"), PlayerArray.Num());
+	// Broadcast the player list changed event (mainly for UI updates)
 	OnPlayerListChangedDelegate.Broadcast();
+
+	// Check if all players are ready
+	CheckAllPlayersReady();
 }
 
 
-// void ALobbyGameState::CheckAllPlayersReady()
-// {
-// 	if (!HasAuthority())
-// 	{
-// 		return; // Only the server should check if all players are ready
-// 	}
-//
-// 	// Check if all players are ready
-// 	bool bAllPlayersReady = true;
-// 	for (const APlayerState* PlayerState : PlayerArray)
-// 	{
-// 		const ALobbyPlayerState* LobbyPlayerState{Cast<ALobbyPlayerState>(PlayerState)};
-// 		if (!LobbyPlayerState || !LobbyPlayerState->bIsReady)
-// 		{
-// 			bAllPlayersReady = false;
-// 			break;
-// 		}
-// 	}
-//
-// 	if (bAllPlayersReady)
-// 	{
-// 		// Start the game
-// 		UE_LOG(LogTemp, Log, TEXT("All players are ready! Starting game..."));
-//
-// 		if (ALobbyGameMode* GM{Cast<ALobbyGameMode>(AuthorityGameMode)})
-// 		{
-// 			GM->StartGame();
-// 		}
-// 	}
-// }
+void ALobbyGameState::CheckAllPlayersReady()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Orange, TEXT("Checking if all players are ready..."));
+	if (!HasAuthority())
+	{
+		return; // Only the server should check if all players are ready
+	}
+
+	// Check if all players are ready
+	bool bAllPlayersReady = true;
+	for (const APlayerState* PlayerState : PlayerArray)
+	{
+		const ALobbyPlayerState* LobbyPlayerState{Cast<ALobbyPlayerState>(PlayerState)};
+		if (!LobbyPlayerState || !LobbyPlayerState->GetReadyState())
+		{
+			bAllPlayersReady = false;
+			break;
+		}
+	}
+
+	if (bAllPlayersReady)
+	{
+		// Start the game
+		UE_LOG(LogTemp, Log, TEXT("All players are ready! Starting game..."));
+
+		if (ALobbyGameMode* GM{Cast<ALobbyGameMode>(AuthorityGameMode)})
+		{
+			GM->StartGame();
+		}
+	}
+}

@@ -30,12 +30,10 @@ public:
 
 	FOnLobbyNameChangedSignature OnLobbyNameChangedDelegate;
 	
-	// // The PlayerArray is an array of all PlayerStates, auyomatically maintained on both server and clients
-	// const TArray<TObjectPtr<APlayerState>>& GetPlayers() const { return PlayerArray; }
-	//
+
 	// // Call this whenever a player's ready status changes
-	// void CheckAllPlayersReady();
-	//
+	void CheckAllPlayersReady();
+
 	UFUNCTION()
 	void OnPlayerListChanged();
 	

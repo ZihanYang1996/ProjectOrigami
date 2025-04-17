@@ -28,40 +28,11 @@ void ALobbyGameMode::BeginPlay()
 	}
 }
 
-
-void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
-{
-	Super::PostLogin(NewPlayer);
-
-	// int32 NumPlayers{GameState->PlayerArray.Num()};
-	// UE_LOG(LogTemp, Log, TEXT("Player Joined! Current Players: %d"), NumPlayers);
-
-	// Broadcast the player list changed event
-	// if (ALobbyGameState* GS{GetGameState<ALobbyGameState>()})
-	// {
-	// 	GS->OnPlayerListChanged();
-	// }
-}
-
-void ALobbyGameMode::Logout(AController* Exiting)
-{
-	Super::Logout(Exiting);
-
-	// int32 NumPlayers{GameState->PlayerArray.Num()};
-	// UE_LOG(LogTemp, Log, TEXT("Player Left! Current Players: %d"), NumPlayers);
-
-	// Broadcast the player list changed event
-	// if (ALobbyGameState* GS{GetGameState<ALobbyGameState>()})
-	// {
-	// 	GS->OnPlayerListChanged();
-	// }
-}
-
 void ALobbyGameMode::StartGame()
 {
 	if (HasAuthority())
 	{
 		UE_LOG(LogTemp, Log, TEXT("Starting game..."));
-		GetWorld()->ServerTravel("/Game/Maps/DefaultMap?listen");
+		GetWorld()->ServerTravel(GameMapName + TravelOption);
 	}
 }

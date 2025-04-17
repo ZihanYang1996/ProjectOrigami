@@ -17,14 +17,14 @@ class PROJECTORIGAMI_API ALobbyGameMode : public AGameModeBase
 public:
 	ALobbyGameMode();
 
-	// Called when the host presses the start game button
+	// Called when everyone is ready
 	UFUNCTION(BlueprintCallable)
 	void StartGame();
 
-protected:
-	virtual void BeginPlay() override;
+
+	FString GameMapName{TEXT("/Game/Maps/DefaultMap")};
+	FString TravelOption{TEXT("?listen")};
 
 protected:
-	virtual void PostLogin(APlayerController* NewPlayer) override;
-	virtual void Logout(AController* Exiting) override;
+	virtual void BeginPlay() override;
 };
