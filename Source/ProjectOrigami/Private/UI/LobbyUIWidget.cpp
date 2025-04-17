@@ -113,4 +113,21 @@ void ULobbyUIWidget::OnReadyClicked()
 	}
 
 	PS->ToggleReady();
+	// Update the button text
+	UpdateReadyButtonText();
+}
+
+
+void ULobbyUIWidget::UpdateReadyButtonText()
+{
+	if (APlayerController* PC{GetOwningPlayer()})
+	{
+		if (ALobbyPlayerState* PS{PC->GetPlayerState<ALobbyPlayerState>()})
+		{
+			if (TextBlock_Ready)
+			{
+				TextBlock_Ready->SetText(PS->GetReadyState() ? FText::FromString(TEXT("Unready")) : FText::FromString(TEXT("Ready")));
+			}
+		}
+	}
 }

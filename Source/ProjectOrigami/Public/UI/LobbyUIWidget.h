@@ -35,6 +35,9 @@ protected:
 	UPROPERTY(meta=(BindWidget))
 	UButton* Button_Ready;
 
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* TextBlock_Ready;	
+
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UUserWidget> PlayerEntryClass;
 
@@ -46,4 +49,6 @@ protected:
 
 	UFUNCTION()
 	void OnReadyClicked();
+
+	void UpdateReadyButtonText();
 };
